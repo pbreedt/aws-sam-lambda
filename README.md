@@ -23,11 +23,6 @@ You may need the following for local testing.
 
 ## Setup process
 
-### Installing dependencies & building the target 
-
-In this example we use the built-in `sam build` to build a docker image from a Dockerfile and then copy the source of your application inside the Docker image.  
-Read more about [SAM Build here](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-build.html) 
-
 ### Local development
 
 **Invoking function locally through local API Gateway**
@@ -51,6 +46,12 @@ sam local start-lambda
 # passing --payload fails due to some error on first byte - suspect it does not like plain json
 aws lambda invoke --function-name "HelloWorldFunction" --endpoint-url "http://127.0.0.1:3001" --payload '{"name":"Bob","age":15}' --no-verify-ssl out.txt
 ```
+
+### Installing dependencies & building the target 
+
+In this example we use the built-in `sam build` to build a docker image from a Dockerfile and then copy the source of your application inside the Docker image.  
+Read more about [SAM Build here](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-build.html) 
+
 
 **SAM CLI** is used to emulate both Lambda and API Gateway locally and uses our `template.yaml` to understand how to bootstrap this environment (runtime, where the source code is, etc.) - The following excerpt is what the CLI will read in order to initialize an API and its routes:
 
@@ -81,6 +82,8 @@ To deploy your application for the first time, run the following in your shell:
 
 ```bash
 sam deploy --guided
+
+curl -X POST https://xxxx.execute-api.us-east-2.amazonaws.com/Prod/hello/ -d '{"name":"Bob","age":15}'
 ```
 
 The command will package and deploy your application to AWS, with a series of prompts:
