@@ -24,7 +24,7 @@ type ResponsePayload struct {
 var ErrNon200Response = fmt.Errorf("non 200 response")
 var ErrNoIP = fmt.Errorf("no IP returned")
 
-func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+func apiGatewayProxyHandler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	reply := ResponsePayload{}
 
 	// Part 1: get data from request
@@ -71,8 +71,56 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	}, nil
 }
 
+func apiGatewayV2HTTPHandler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
+	reply := ResponsePayload{}
+
+	// Part 1: get data from request
+	var payload RequestPayload
+	err := json.Unmarshal([]byte(request.Body), &payload)
+	if err != nil {
+		return events.APIGatewayV2HTTPResponse{
+			Body:       "Error: " + err.Error(),
+			StatusCode: 400,
+		}, nil
+	}
+	reply.Message = fmt.Sprintf("Hello, %s (aged %d) ", payload.Name, payload.Age)
+
+	// Part 2: get data from APIGatewayV2HTTPRequestContext
+	sourceIP := request.RequestContext.HTTP.SourceIP
+	if sourceIP == "" {
+		reply.Message += "from unknown source!"
+	} else {
+		reply.Message += fmt.Sprintf("from %s!", sourceIP)
+	}
+
+	// Part 3: get data from backend service
+	resp, err := http.Get("https://checkip.amazonaws.com/")
+	if err != nil {
+		return events.APIGatewayV2HTTPResponse{}, err
+	}
+	if resp.StatusCode != 200 {
+		return events.APIGatewayV2HTTPResponse{}, ErrNon200Response
+	}
+	ip, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return events.APIGatewayV2HTTPResponse{}, err
+	}
+	if len(ip) == 0 {
+		reply.From = "unknown"
+	} else {
+		reply.From = strings.TrimSpace(string(ip))
+	}
+
+	// Part 4: return APIGatewayProxyResponse
+	return events.APIGatewayV2HTTPResponse{
+		Body:       reply.String(),
+		StatusCode: 200,
+	}, nil
+}
+
 func main() {
-	lambda.Start(handler)
+	// lambda.Start(apiGatewayProxyHandler)
+	lambda.Start(apiGatewayV2HTTPHandler)
 }
 
 func (r ResponsePayload) String() string {

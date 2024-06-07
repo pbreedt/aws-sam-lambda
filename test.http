@@ -1,0 +1,38 @@
+GET https://m0wz9sjq7b.execute-api.us-east-2.amazonaws.com/dev
+
+###
+POST https://m0wz9sjq7b.execute-api.us-east-2.amazonaws.com/dev
+Content-Type: application/json
+
+{
+  "key1": "value1",
+  "key2": "value2",
+  "key3": "value3"
+}
+
+### Req for APIGatewayProxyRequest
+POST https://iw4no96lp0.execute-api.us-east-2.amazonaws.com/hello
+Content-Type: application/json
+
+{"name":"Bob","age":15}
+
+### Req for APIGatewayV2HTTPRequest
+POST https://iw4no96lp0.execute-api.us-east-2.amazonaws.com/hello
+Content-Type: application/json
+
+{"name":"Bob","age":15}
+
+###
+GET https://iw4no96lp0.execute-api.us-east-2.amazonaws.com/Prod/hello/
+Content-Type: application/json
+
+{"name":"Bob","age":15}
+
+###
+POST https://iw4no96lp0.execute-api.us-east-2.amazonaws.com/Prod/hello/
+Content-Type: application/json
+
+{"name":"Bob","age":15}
+
+###
+GET https://dc7q8pr6r4.execute-api.us-east-2.amazonaws.com/rest-stage/user
